@@ -13,28 +13,30 @@ double ConfigParam::_ImageDelayToIMU = 0;
 bool ConfigParam::_bAccMultiply9p8 = false;
 std::string ConfigParam::_tmpFilePath = "";
 
+
 ConfigParam::ConfigParam(std::string configfile)
 {
     cv::FileStorage fSettings(configfile, cv::FileStorage::READ);
 
     std::cout<<std::endl<<std::endl<<"Parameters: "<<std::endl;
 
-    _testDiscardTime = fSettings["test.DiscardTime"];
+    //_testDiscardTime = fSettings["test.DiscardTime"];
 
     fSettings["test.InitVIOTmpPath"] >> _tmpFilePath;
     std::cout<<"save tmp file in "<<_tmpFilePath<<std::endl;
 
-    fSettings["bagfile"] >> _bagfile;
-    std::cout<<"open rosbag: "<<_bagfile<<std::endl;
-    fSettings["imutopic"] >> _imuTopic;
-    fSettings["imagetopic"] >> _imageTopic;
-    std::cout<<"imu topic: "<<_imuTopic<<std::endl;
-    std::cout<<"image topic: "<<_imageTopic<<std::endl;
+    //fSettings["bagfile"] >> _bagfile;
+    //std::cout<<"open rosbag: "<<_bagfile<<std::endl;
+    //fSettings["imutopic"] >> _imuTopic;
+    //fSettings["imagetopic"] >> _imageTopic;
+    //std::cout<<"imu topic: "<<_imuTopic<<std::endl;
+    //std::cout<<"image topic: "<<_imageTopic<<std::endl;
 
-    _LocalWindowSize = fSettings["LocalMapping.LocalWindowSize"];
-    std::cout<<"local window size: "<<_LocalWindowSize<<std::endl;
+    //_LocalWindowSize = fSettings["LocalMapping.LocalWindowSize"];
+    //std::cout<<"local window size: "<<_LocalWindowSize<<std::endl;
 
-    _ImageDelayToIMU = fSettings["Camera.delaytoimu"];
+    //_ImageDelayToIMU = fSettings["Camera.delaytoimu"];
+    _ImageDelayToIMU = 0;
     std::cout<<"timestamp image delay to imu: "<<_ImageDelayToIMU<<std::endl;
 
     {

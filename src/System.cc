@@ -43,10 +43,6 @@ bool has_suffix(const std::string &str, const std::string &suffix) {
 
 namespace ORB_SLAM2
 {
-/// for VI-ORB_SLAM2
-/********************************************************************************/
-/**************************** for VI-ORB_SLAM2 Start ****************************/
-/********************************************************************************/
 bool System::bLocalMapAcceptKF()
 {
     return (mpLocalMapper->AcceptKeyFrames() && !mpLocalMapper->isStopped());
@@ -89,7 +85,8 @@ cv::Mat System::TrackMonoVI(const cv::Mat &im, const std::vector<IMUData> &vimu,
             // Wait until Local Mapping has effectively stopped
             while(!mpLocalMapper->isStopped())
             {
-                usleep(1000);
+                //usleep(1000);
+                std::this_thread::sleep_for(std::chrono::microseconds(1000));
             }
 
             mpTracker->InformOnlyTracking(true);
@@ -329,20 +326,15 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
 
     mpVocabulary = new ORBVocabulary();
-//    std::cout << RED" mpVocabulary->getWeightingType() = " << mpVocabulary->getWeightingType() << RESET << std::endl;   // = 0
 
-    //    bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
-    bool bVocLoad = false; // chose loading method based on file extension
-    if (has_suffix(strVocFile, ".txt"))
-        bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
-    else
-        bVocLoad = mpVocabulary->loadFromBinaryFile(strVocFile);
-    if(!bVocLoad)
-    {
-        cerr << "Wrong path to vocabulary. " << endl;
-        cerr << "Falied to open at: " << strVocFile << endl;
-        exit(-1);
-    }
+    bool bVocLoad = false;
+    mpVocabulary->load(strVocFile);
+    //if(!bVocLoad)
+    //{
+    //    cerr << "Wrong path to vocabulary. " << endl;
+    //    cerr << "Falied to open at: " << strVocFile << endl;
+    //    exit(-1);
+    //}
     cout << "Vocabulary loaded!" << endl << endl;
 
     //Create KeyFrame Database
@@ -405,7 +397,7 @@ cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const
             // Wait until Local Mapping has effectively stopped
             while(!mpLocalMapper->isStopped())
             {
-                usleep(1000);
+                std::this_thread::sleep_for(std::chrono::microseconds(1000));
             }
 
             mpTracker->InformOnlyTracking(true);
@@ -456,7 +448,7 @@ cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const doub
             // Wait until Local Mapping has effectively stopped
             while(!mpLocalMapper->isStopped())
             {
-                usleep(1000);
+                std::this_thread::sleep_for(std::chrono::microseconds(1000));
             }
 
             mpTracker->InformOnlyTracking(true);
@@ -507,7 +499,7 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
             // Wait until Local Mapping has effectively stopped
             while(!mpLocalMapper->isStopped())
             {
-                usleep(1000);
+                std::this_thread::sleep_for(std::chrono::microseconds(1000));
             }
 
             mpTracker->InformOnlyTracking(true);
@@ -580,13 +572,13 @@ void System::Shutdown()
     {
         mpViewer->RequestFinish();
         while(!mpViewer->isFinished())
-            usleep(5000);
+            std::this_thread::sleep_for(std::chrono::microseconds(5000));
     }
 
     // Wait until all thread have effectively stopped
     while(!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA())
     {
-        usleep(5000);
+        std::this_thread::sleep_for(std::chrono::microseconds(5000));
     }
 
     if(mpViewer)

@@ -37,8 +37,9 @@
 //#include "Viewer.h"
 
 #include "../src/IMU/imudata.h"
-//#include "../src/IMU/configparam.h"
+#include "../src/IMU/configparam.h"
 
+using namespace std;
 
 namespace ORB_SLAM2
 {
@@ -267,49 +268,5 @@ private:
 #define BOLDCYAN "\033[1m\033[36m" /* Bold Cyan */
 #define BOLDWHITE "\033[1m\033[37m" /* Bold White */
 
-/*
- * 在构造函数中记录当前的系统时间，在析构函数中输出当前的系统时间与之前的差，精度是us
- * 使用方法：在需要计时的程序段之前构造类对象，在程序段之后获取时间
- * example:
- *		 Timer time; //开始计时
- *		 ....
- *		 printf("time: %d us\n", time.runTime()); //显示时间
-
-*/
-// 计时
-#include <stdio.h>
-#include <sys/time.h>
-class Timer
-{
-    public:
-
-        struct timeval start, end;
-        Timer() // 构造函数，开始记录时间
-        {
-            gettimeofday( &start, NULL );
-        }
-        void freshTimer()
-        {
-            gettimeofday( &start, NULL );
-        }
-
-        int runTime()
-        {
-            gettimeofday( &end, NULL );
-            return 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec;
-        }
-        double runTime_us()
-        {
-            return runTime()/1.0;
-        }
-        double runTime_ms()
-        {
-            return runTime() / 1000.0;
-        }
-        double runTime_s()
-        {
-            return runTime() / 1000000.0;
-        }
-};
 
 #endif // SYSTEM_H

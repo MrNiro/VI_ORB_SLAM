@@ -27,7 +27,7 @@
 #ifndef G2O_TIMEUTIL_H
 #define G2O_TIMEUTIL_H
 
-#ifdef _WINDOWS
+#ifdef _WIN64
 #include <time.h>
 #else
 #include <sys/time.h>
@@ -77,7 +77,7 @@ if (1) {\
 
 namespace g2o {
 
-#ifdef _WINDOWS
+#ifdef _WIN64
 typedef struct timeval {
   long tv_sec;
   long tv_usec;

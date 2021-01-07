@@ -27,6 +27,10 @@
 #include <Eigen/StdVector>
 #include <Eigen/Geometry>
 
+//#ifndef M_PI
+//#define M_PI 3.14
+//#endif
+
 
 namespace Sophus
 {

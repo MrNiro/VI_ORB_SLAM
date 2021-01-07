@@ -401,13 +401,18 @@ namespace g2o {
     // compute the permuted version of the new row/column layout
     size_t n=_rowBlockIndices.size();
     // computed the block sizes
-    int blockSizes[_rowBlockIndices.size()];
+    std::vector<int> blockSizes;
+    blockSizes.resize(_rowBlockIndices.size());
+    //int blockSizes[_rowBlockIndices.size()];
     blockSizes[0]=_rowBlockIndices[0];
     for (size_t i=1; i<n; ++i){
       blockSizes[i]=_rowBlockIndices[i]-_rowBlockIndices[i-1];
     }
     // permute them
-    int pBlockIndices[_rowBlockIndices.size()];
+    int* pBlockIndices = (int*)malloc(_rowBlockIndices.size() * sizeof(int));
+    //std::vector<int> pBlockIndices;
+    //pBlockIndices.resize(_rowBlockIndices.size());
+    //int pBlockIndices[_rowBlockIndices.size()];
     for (size_t i=0; i<n; ++i){
       pBlockIndices[pinv[i]]=blockSizes[i];
     }

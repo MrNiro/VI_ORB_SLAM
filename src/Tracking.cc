@@ -56,8 +56,6 @@ bool Tracking::SetConfigParam(ConfigParam* pParams)
 
 cv::Mat Tracking::GrabImageMonoVI(const cv::Mat &im, const std::vector<IMUData> &vimu, const double &timestamp)
 {
-    Timer frame_processing_timer;
-
     // Step 1: append new IMU data
     mvIMUSinceLastKF.insert(mvIMUSinceLastKF.end(), vimu.begin(), vimu.end());
     mImGray = im;
@@ -79,13 +77,11 @@ cv::Mat Tracking::GrabImageMonoVI(const cv::Mat &im, const std::vector<IMUData> 
     }
 
     // Step 3: construct Frame, it cost about more than 20ms
-    Timer frame_construct_timer;
     if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET)
         mCurrentFrame = Frame(mImGray,timestamp, vimu, mpIniORBextractor,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
     else
         mCurrentFrame = Frame(mImGray,timestamp, vimu, mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
-    mTimeOfConstructFrame = frame_construct_timer.runTime_ms();   // record time
     if(mpParams->GetDispalyTimeStatistic()) std::cout << "[INFO] -->> Construct Frame time is: " << mTimeOfConstructFrame << " ms" << std::endl;
 
 //    ///////////////////////////////////////
@@ -97,13 +93,9 @@ cv::Mat Tracking::GrabImageMonoVI(const cv::Mat &im, const std::vector<IMUData> 
 //    ///////////////////////////////////////
 
     // Step 4: track VIO
-    Timer track_timer;
     Track();
 
-    mTimeOfTrack = track_timer.runTime_ms();    // record time
     if(mpParams->GetDispalyTimeStatistic()) std::cout << "[INFO] <<-- Tracking time is: " << mTimeOfTrack << " ms" << std::endl;
-
-    mTimeOfProcessingFrame = frame_processing_timer.runTime_ms();
 
     return mCurrentFrame.mTcw.clone();
 }
@@ -278,72 +270,6 @@ void Tracking::RecomputeIMUBiasAndCurrentNavstate(NavState& nscur)
     //mv20FramesReloc
 }
 
-/// Wangjing
-//void Tracking::PredictNavStateByIMU( bool bMapUpdated )
-//{
-//    if(!mpLocalMapper->GetVINSInited()) cerr<<"mpLocalMapper->GetVINSInited() not, shouldn't in PredictNavStateByIMU"<<endl;
-
-//    // Map updated, optimize with last KeyFrame
-//    if(mpLocalMapper->GetFirstVINSInited() || bMapUpdated)
-//    {
-////        std::cout << "[INFO] Map updated, optimize with last KeyFrame" << std::endl;
-//        if(mpLocalMapper->GetFirstVINSInited() && !bMapUpdated) cerr<<RED"2-FirstVinsInit, but not bMapUpdated. shouldn't"<<RESET<<endl;
-
-//        // Compute IMU Pre-integration
-//        mIMUPreIntInTrack = GetIMUPreIntSinceLastKF(&mCurrentFrame, mpLastKeyFrame, mvIMUSinceLastKF);
-
-//        // Get initial NavState&pose from Last KeyFrame
-//        mCurrentFrame.SetInitialNavStateAndBias(mpLastKeyFrame->GetNavState());
-//        mCurrentFrame.UpdateNavState(mIMUPreIntInTrack,Converter::toVector3d(mpLocalMapper->GetGravityVec()));
-//        mCurrentFrame.UpdatePoseFromNS(mpParams->GetMatTbc());
-
-////        // Test log. Display the poses of LastKF and mCurrentFrame
-////        {
-////            cv::Mat Rcw_lk = mpLastKeyFrame->GetPose().rowRange(0,3).colRange(0,3);
-////            Eigen::Vector3d euler_lk = Converter::toEulerAngles(Rcw_lk);
-////            std::cout << YELLOW"[INFO] 2---Last KeyFrame euler angle = ["
-////                      << euler_lk[0] << ", "
-////                      << euler_lk[1] << ", "
-////                      << euler_lk[2] << "]" << ",  mpLastKeyFrame->mnFrameId = " << mpLastKeyFrame->mnFrameId << RESET << std::endl;
-////            //-------------------------------
-////            cv::Mat Rcw_lf = mLastFrame.GetRotationInverse().t();
-////            Eigen::Vector3d euler_lf = Converter::toEulerAngles(Rcw_lf);
-////            std::cout << YELLOW"[INFO] 3---Last frame pose = ["
-////                      << euler_lf[0] << ", "
-////                      << euler_lf[1] << ", "
-////                      << euler_lf[2] << "]" << RESET << std::endl;
-////            //-------------------------------
-////            cv::Mat Rcw = mCurrentFrame.GetRotationInverse().t();
-////            Eigen::Vector3d euler = Converter::toEulerAngles(Rcw);
-////            std::cout << YELLOW"[INFO] 4---After Pre-integration since Last KeyFrame, current frame euler angle = ["
-////                      << euler[0] << ", "
-////                      << euler[1] << ", "
-////                      << euler[2] << "]" <<  ", mvIMUSinceLastKF.size() = " <<  mvIMUSinceLastKF.size() << RESET << std::endl;
-////        }
-
-//        // Test log
-//        // Updated KF by Local Mapping. Should be the same as mpLastKeyFrame
-//        if(mCurrentFrame.GetNavState().Get_dBias_Acc().norm() > 1e-6) cerr<<"PredictNavStateByIMU1 current Frame dBias acc not zero"<<endl;
-//        if(mCurrentFrame.GetNavState().Get_dBias_Gyr().norm() > 1e-6) cerr<<"PredictNavStateByIMU1 current Frame dBias gyr not zero"<<endl;
-//    }
-//    // Map not updated, optimize with last Frame
-//    else
-//    {
-////        std::cout << "Map not updated, optimize with last Frame" << std::endl;
-
-//        // Compute IMU Pre-integration
-//        mIMUPreIntInTrack = GetIMUPreIntSinceLastFrame(&mCurrentFrame, &mLastFrame);
-
-//        // Get initial pose from Last Frame
-//        mCurrentFrame.SetInitialNavStateAndBias(mLastFrame.GetNavState());
-//        mCurrentFrame.UpdateNavState(mIMUPreIntInTrack,Converter::toVector3d(mpLocalMapper->GetGravityVec()));
-//        mCurrentFrame.UpdatePoseFromNS(mpParams->GetMatTbc());
-
-//        // Test log
-//        if(mCurrentFrame.GetNavState().Get_dBias_Acc().norm() > 1e-6) cerr<<"PredictNavStateByIMU2 current Frame dBias acc not zero"<<endl;
-//        if(mCurrentFrame.GetNavState().Get_dBias_Gyr().norm() > 1e-6) cerr<<"PredictNavStateByIMU2 current Frame dBias gyr not zero"<<endl;
-//    }
-//}
 
 /// Modified by Huangweibo
 void Tracking::PredictNavStateByIMU( bool bMapUpdated )
@@ -952,13 +878,11 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
     }
 
 
-    Timer frame_construct_timer;
     if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET)
         mCurrentFrame = Frame(mImGray,timestamp,mpIniORBextractor,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
     else
         mCurrentFrame = Frame(mImGray,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
-    mTimeOfConstructFrame = frame_construct_timer.runTime_ms();   // record time
 
     //    cout << "[INFO] Construct Frame time is: " << frame_construct_time.runTime_us()/1000.0 << " ms" << RESET << endl;
 
@@ -994,14 +918,9 @@ void Tracking::Track()
     /// Step 1: system initialization
     if(mState==NOT_INITIALIZED)
     {
-        if(mSensor==System::STEREO || mSensor==System::RGBD)
-            StereoInitialization();
-        else
-        {
-            MonocularInitialization();
-            if(mState==OK)
-                cout << GREEN"MonocularInitialization success" << RESET << endl;
-        }
+        MonocularInitialization();
+        if(mState==OK)
+            cout << GREEN"MonocularInitialization success" << RESET << endl;
 
         mpFrameDrawer->Update(this);
 
@@ -1068,14 +987,12 @@ void Tracking::Track()
                     else
                     {
                         {   /// TrackWithIMU
-                            Timer time_TrackWithIMU;            /// 6ms ~ 18ms
                             bOK = TrackWithIMU(bMapUpdated);    // 用IMU预计分替换匀速运动模型
                             mbTrackWithIMUSuccess = bOK;
                             // Test log
                             if(!bOK) std::cout << RED"[INFO] TrackWithIMU is fail, mCurrentFrame.mnId = " << mCurrentFrame.mnId
                                                << ", IMU num = " << mCurrentFrame.mvIMUDataSinceLastFrame.size() << RESET << endl;
 
-                            mTimeOfTrackWithIMU = time_TrackWithIMU.runTime_ms();   // record time
                             if(mpParams->GetDispalyTimeStatistic()) std::cout << "[INFO]      TrackWithIMU time: " << mTimeOfTrackWithIMU << " ms" << RESET << std::endl;
                         }
 
@@ -1258,12 +1175,10 @@ void Tracking::Track()
                         else{
                             cv::Mat Tcw_rem = mCurrentFrame.mTcw;
 
-                            Timer time_TrackLocalMapWithIMU;          /// 10+ ms ~ 20+ ms
                             bOK = TrackLocalMapWithIMU(bMapUpdated);    // Normal (VI-ORB_SLAM): track with vision and IMU
 
 //                            bOK = TrackLocalMap();
 
-                            mTimeOfTrackLocalMapWithIMU = time_TrackLocalMapWithIMU.runTime_ms();   // record time
                             if(mpParams->GetDispalyTimeStatistic()) std::cout << "[INFO]      TrackLocalMapWithIMU time: " << mTimeOfTrackLocalMapWithIMU << " ms" << RESET << std::endl;
 
                             // Test log
@@ -2734,7 +2649,7 @@ void Tracking::Reset()
     {
         mpViewer->RequestStop();
         while(!mpViewer->isStopped())
-            usleep(3000);
+            std::this_thread::sleep_for(std::chrono::microseconds(3000));
     }
 
     // Reset Local Mapping

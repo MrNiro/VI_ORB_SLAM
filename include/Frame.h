@@ -24,8 +24,6 @@
 #include<vector>
 
 #include "MapPoint.h"
-#include "Thirdparty/DBoW2/DBoW2/BowVector.h"
-#include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
 #include "ORBVocabulary.h"
 #include "KeyFrame.h"
 #include "ORBextractor.h"
@@ -217,8 +215,8 @@ public:
     std::vector<float> mvDepth;
 
     // Bag of Words Vector structures.
-    DBoW2::BowVector mBowVec;
-    DBoW2::FeatureVector mFeatVec;
+    DBoW3::BowVector mBowVec;
+    DBoW3::FeatureVector mFeatVec;
 
     // ORB descriptor, each row associated to a keypoint.
     cv::Mat mDescriptors, mDescriptorsRight;
@@ -248,10 +246,10 @@ public:
     int mnScaleLevels;
     float mfScaleFactor;
     float mfLogScaleFactor;
-    vector<float> mvScaleFactors;
-    vector<float> mvInvScaleFactors;
-    vector<float> mvLevelSigma2;
-    vector<float> mvInvLevelSigma2;
+    std::vector<float> mvScaleFactors;
+    std::vector<float> mvInvScaleFactors;
+    std::vector<float> mvLevelSigma2;
+    std::vector<float> mvInvLevelSigma2;
 
     // Undistorted Image Bounds (computed once).
     static float mnMinX;

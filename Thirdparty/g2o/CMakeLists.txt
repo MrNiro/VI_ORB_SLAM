@@ -54,8 +54,10 @@ IF(OPENMP_FOUND AND G2O_USE_OPENMP)
 ENDIF(OPENMP_FOUND AND G2O_USE_OPENMP)
 
 # Compiler specific options for gcc
-SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native") 
-SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -march=native") 
+SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native")
+SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -march=native")
+# SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+# SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
 
 # activate warnings !!!
 SET(g2o_C_FLAGS "${g2o_C_FLAGS} -Wall -W")
@@ -66,7 +68,8 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${g2o_CXX_FLAGS}")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${g2o_C_FLAGS}")
 
 # Find Eigen3
-SET(EIGEN3_INCLUDE_DIR ${G2O_EIGEN3_INCLUDE})
+# SET(EIGEN3_INCLUDE_DIR ${G2O_EIGEN3_INCLUDE})
+SET(EIGEN3_INCLUDE_DIR {../eigen3.3.7/Eigen})
 FIND_PACKAGE(Eigen3 3.1.0 REQUIRED)
 IF(EIGEN3_FOUND)
   SET(G2O_EIGEN3_INCLUDE ${EIGEN3_INCLUDE_DIR} CACHE PATH "Directory of Eigen3")
@@ -151,6 +154,8 @@ g2o/core/optimization_algorithm_with_hessian.cpp
 g2o/core/optimization_algorithm_with_hessian.h
 g2o/core/optimization_algorithm_levenberg.cpp 
 g2o/core/optimization_algorithm_levenberg.h
+g2o/core/optimization_algorithm_gauss_newton.cpp 
+g2o/core/optimization_algorithm_gauss_newton.h
 g2o/core/jacobian_workspace.cpp 
 g2o/core/jacobian_workspace.h
 g2o/core/robust_kernel.cpp 
@@ -170,12 +175,5 @@ g2o/stuff/os_specific.c
 g2o/stuff/os_specific.h
 g2o/stuff/string_tools.cpp
 g2o/stuff/property.cpp       
-g2o/stuff/property.h
-
-#added
-g2o/stuff/sparse_helper.cpp
-g2o/stuff/sparse_helper.h
-g2o/solvers/linear_solver_cholmod.h
-g2o/solvers/linear_solver_eigen.h
-g2o/solvers/linear_solver_dense.h       
+g2o/stuff/property.h       
 )

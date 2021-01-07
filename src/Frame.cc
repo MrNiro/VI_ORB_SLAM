@@ -67,9 +67,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, const std::vector<I
     mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 
     // ORB extraction
-    Timer orb_extract_timer; /// 14-17ms
     ExtractORB(0,imGray);
-    mTimeOfORBExtract = orb_extract_timer.runTime_ms();
 //    std::cout << "[INFO]    ORB extraction is time: " << mTimeOfORBExtract << " ms" << RESET << std::endl;
 
     N = mvKeys.size();

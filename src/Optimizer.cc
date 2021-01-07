@@ -37,7 +37,7 @@
 #include "IMU/g2otypes.h"
 #include "Thirdparty/g2o/g2o/core/optimization_algorithm_gauss_newton.h"
 #include "Thirdparty/g2o/g2o/core/optimization_algorithm_with_hessian.h"
-#include "Thirdparty/g2o/g2o/solvers/linear_solver_cholmod.h"
+//#include "Thirdparty/g2o/g2o/solvers/linear_solver_cholmod.h"
 
 #include<mutex>
 
@@ -342,8 +342,8 @@ int Optimizer::PoseOptimization(
     g2o::SparseOptimizer optimizer;
     g2o::BlockSolverX::LinearSolverType * linearSolver;
 
-    //linearSolver = new g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>();
-    linearSolver = new g2o::LinearSolverCholmod<g2o::BlockSolverX::PoseMatrixType>();
+    linearSolver = new g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>();
+    //linearSolver = new g2o::LinearSolverCholmod<g2o::BlockSolverX::PoseMatrixType>();
 
     g2o::BlockSolverX * solver_ptr = new g2o::BlockSolverX(linearSolver);
 
@@ -616,8 +616,8 @@ int Optimizer::PoseOptimization(
     g2o::SparseOptimizer optimizer;
     g2o::BlockSolverX::LinearSolverType * linearSolver;
 
-    //linearSolver = new g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>();
-    linearSolver = new g2o::LinearSolverCholmod<g2o::BlockSolverX::PoseMatrixType>();
+    linearSolver = new g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>();
+    //linearSolver = new g2o::LinearSolverCholmod<g2o::BlockSolverX::PoseMatrixType>();
 
     g2o::BlockSolverX * solver_ptr = new g2o::BlockSolverX(linearSolver);
 
@@ -2550,8 +2550,8 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     g2o::SparseOptimizer optimizer;
     g2o::BlockSolver_6_3::LinearSolverType * linearSolver;
 
-//    linearSolver = new g2o::LinearSolverDense<g2o::BlockSolver_6_3::PoseMatrixType>();    // Default: Dense
-    linearSolver = new g2o::LinearSolverCholmod<g2o::BlockSolver_6_3::PoseMatrixType>();    // wangjing改成Cholmod
+    linearSolver = new g2o::LinearSolverDense<g2o::BlockSolver_6_3::PoseMatrixType>();    // Default: Dense
+    //linearSolver = new g2o::LinearSolverCholmod<g2o::BlockSolver_6_3::PoseMatrixType>();    // wangjing改成Cholmod
 
     g2o::BlockSolver_6_3 * solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
 

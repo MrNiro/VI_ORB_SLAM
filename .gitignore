@@ -22,3 +22,8 @@ build/
 *~
 lib/
 
+/.vs
+/Sample_SLAM/x64/Release
+/Thirdparty/【Unused】DBoW2
+/x64/Release
+/Thirdparty/g2o/x64/Release

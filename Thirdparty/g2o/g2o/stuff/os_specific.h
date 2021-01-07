@@ -27,11 +27,11 @@
 #ifndef G2O_OS_SPECIFIC_HH_
 #define G2O_OS_SPECIFIC_HH_
 
-#ifdef WINDOWS
+#ifdef _WIN64
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#ifndef _WINDOWS
+#ifndef _WIN64
 #include <sys/time.h>
 #endif
 #define drand48() ((double) rand()/(double)RAND_MAX)

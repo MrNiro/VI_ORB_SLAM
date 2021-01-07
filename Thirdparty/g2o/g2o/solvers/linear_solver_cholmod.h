@@ -27,11 +27,11 @@
 #ifndef G2O_LINEAR_SOLVER_CHOLMOD
 #define G2O_LINEAR_SOLVER_CHOLMOD
 
-#include "../core/linear_solver.h"
-#include "../core/marginal_covariance_cholesky.h"
-#include "../core/batch_stats.h"
-#include "../stuff/timeutil.h"
-#include "../stuff/sparse_helper.h"
+#include "g2o/core/linear_solver.h"
+#include "g2o/core/marginal_covariance_cholesky.h"
+#include "g2o/core/batch_stats.h"
+#include "g2o/stuff/timeutil.h"
+#include "g2o/stuff/sparse_helper.h"
 
 #include <cholmod.h>
 
@@ -204,7 +204,7 @@ class LinearSolverCholmod : public LinearSolverCCS<MatrixType>
       return true;
     }
 
-    virtual bool solvePattern(SparseBlockMatrix<MatrixXD>& spinv, const std::vector<std::pair<int, int> >& blockIndices, const SparseBlockMatrix<MatrixType>& A)
+    virtual bool solvePattern(SparseBlockMatrix<MatrixX>& spinv, const std::vector<std::pair<int, int> >& blockIndices, const SparseBlockMatrix<MatrixType>& A)
     {
       //cerr << __PRETTY_FUNCTION__ << " using cholmod" << endl;
       fillCholmodExt(A, _cholmodFactor != 0); // _cholmodFactor used as bool, if not existing will copy the whole structure, otherwise only the values

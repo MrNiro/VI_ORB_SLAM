@@ -1841,31 +1841,21 @@ void LocalMapping::Run()
 
 //            std::cout << "[INFO] NewMapPointsCreatedByLastKF = " << nNewMapPointsCreatedByLastKF << std::endl;
             // BoW conversion and insertion in Map
-            Timer timerOfProcessNewKeyFrame;
             ProcessNewKeyFrame();
-            mTimeOfProcessNewKeyFrame = timerOfProcessNewKeyFrame.runTime_ms();
 //            std::cout << " -- 1 -- mTimeOfProcessNewKeyFrame = " << mTimeOfProcessNewKeyFrame << std::endl;
 
             // Check recent MapPoints
-            Timer timerOfMapPointCulling;
             MapPointCulling();
-            mTimeOfMapPointCulling = timerOfMapPointCulling.runTime_ms();
 //            std::cout << " -- 2 -- mTimeOfMapPointCulling = " << mTimeOfMapPointCulling << std::endl;
 
             // Triangulate new MapPoints
-            Timer timerOfCreateNewMapPoints;
             CreateNewMapPoints();
-
-            mTimeOfCreateNewMapPoints = timerOfCreateNewMapPoints.runTime_ms();
 //            std::cout << " -- 3 -- mTimeOfCreateNewMapPoints = " << mTimeOfCreateNewMapPoints << std::endl;
 
             if(!CheckNewKeyFrames())
             {
                 // Find more matches in neighbor keyframes and fuse point duplications
-                Timer timerOfSearchInNeighbors;
                 SearchInNeighbors();
-                mTimeOfSearchInNeighbors = timerOfSearchInNeighbors.runTime_ms();
-//                std::cout << " -- 4 -- mTimeOfSearchInNeighbors = " << mTimeOfSearchInNeighbors << std::endl;
             }
             bCreateNewMapPointsFinished = true;
 
@@ -1878,7 +1868,6 @@ void LocalMapping::Run()
                 mbEnableChangeMapUpdateFlagForTracking = false;
 
                 // Local BA
-                Timer timerOfLocalBA;
                 if(mpMap->KeyFramesInMap()>2)
                 {
                     // Debug log
@@ -1899,9 +1888,6 @@ void LocalMapping::Run()
                     if(mbAbortBA) std::cout << MAGENTA"[INFO] *** After Optimizer::LocalBundleAdjustment, mbAbortBA is set to true. "
                                                       "mpCurrentKeyFrame->mnFrameId = " << mpCurrentKeyFrame->mnFrameId << RESET << std::endl;
                 }
-                mTimeOfLocalBA = timerOfLocalBA.runTime_ms();
-//                std::cout << " -- 5 -- mTimeOfLocalBA = " << mTimeOfLocalBA << std::endl;
-
                 /// for VI-ORB_SLAM, Try to initialize VIO, if not inited
                 if(mbMonoVIEnable)
                 {
@@ -1922,15 +1908,12 @@ void LocalMapping::Run()
                             fProcessing_Time << "timestample processing_time_ms" << endl;
                         }
 
-                        Timer timerOffProcessing_Time;
                         bool bVIOInited = false;
                         if(mpParams->GetEstimateExtrinsicBetweenCameraAndIMU())
                             bVIOInited = TryInitVIOWithoutPreCalibration();    // estimate Rbc and Pbc as well as scale, gravity, biasg and biasa
                         else
                             bVIOInited = TryInitVIO(); // use the pre-estimated Tbc, estimate scale, gravity, biasg and biasa
 
-                        fProcessing_Time << mpCurrentKeyFrame->mTimeStamp<<" "
-                                         << timerOffProcessing_Time.runTime_ms() << endl;
 
                         SetVINSInited(bVIOInited);
                         if(bVIOInited)
@@ -1951,13 +1934,10 @@ void LocalMapping::Run()
                 }
 
                 // Check redundant local Keyframes
-                Timer timerOfKeyFrameCulling;
                 if(mbMonoVIEnable)
                     KeyFrameCullingForMonoVI();
                 else
                     KeyFrameCulling();
-                mTimeOfKeyFrameCulling = timerOfKeyFrameCulling.runTime_ms();
-//                std::cout << " -- 6 -- mTimeOfKeyFrameCulling = " << mTimeOfKeyFrameCulling << std::endl;
 
                 // TODO: Enable the change of mbMapUpdateFlagForTracking after LocalBundleAdjustment
                 mbEnableChangeMapUpdateFlagForTracking = true;
@@ -1976,7 +1956,7 @@ void LocalMapping::Run()
             // Safe area to stop
             while(isStopped() && !CheckFinish())
             {
-                usleep(3000);
+                std::this_thread::sleep_for(std::chrono::microseconds(1000));
             }
             if(CheckFinish())
                 break;
@@ -1989,8 +1969,6 @@ void LocalMapping::Run()
 
         if(CheckFinish())
             break;
-
-        usleep(3000);
     }
 
     SetFinish();
@@ -2079,19 +2057,14 @@ void LocalMapping::ProcessNewKeyFrame()
         mlNewKeyFrames.pop_front();
     }
 
-    Timer timerOfComputeBow;
     // Compute Bags of Words structures
     mpCurrentKeyFrame->ComputeBoW();
-
-    mTimeOfComputeBow = timerOfComputeBow.runTime_ms();
 
     // Associate MapPoints to the new keyframe and update normal and descriptor
     // 步骤3: 将Tracking::TrackLocalMap()中新匹配上的MapPoints与新关键帧进行关联
     // 在Tracking::TrackLocalMap()函数中将局部地图中的MapPoints与当前帧进行了匹配 ( SearchLocalPoints() ),
     // 但是没有对这些匹配上的MapPoints与当前关键帧进行关联
     const vector<MapPoint*> vpMapPointMatches = mpCurrentKeyFrame->GetMapPointMatches();
-
-    Timer timerOfAssociateMapPoints;
 
     /// multi threads
     {
@@ -2147,14 +2120,10 @@ void LocalMapping::ProcessNewKeyFrame()
 //        }
 //    }
 
-    mTimeOfAssociateMapPoints = timerOfAssociateMapPoints.runTime_ms();
 
     // Update links in the Covisibility Graph
     // 步骤4：更新关键帧间的连接关系，Covisibility图和Essential图(tree)
-    Timer timerOfUpdateConnections;
     mpCurrentKeyFrame->UpdateConnections();
-
-    mTimeOfUpdateConnections = timerOfUpdateConnections.runTime_ms();
 
     /// for VI-ORB_SLAM
     if(mbMonoVIEnable)
@@ -2776,7 +2745,7 @@ void LocalMapping::RequestReset()
             if(!mbResetRequested)
                 break;
         }
-        usleep(3000);
+        std::this_thread::sleep_for(std::chrono::microseconds(3000));
     }
 }
 
